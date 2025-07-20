@@ -1,0 +1,134 @@
+# .htaccess for Trading Signals Website
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Set the base directory (adjust if your site is in a subfolder)
+# RewriteBase /
+
+# ----------------------------------------------------------------------
+# SECURITY RULES
+# ----------------------------------------------------------------------
+
+# Block access to sensitive files
+<FilesMatch "(\.(env|log|htaccess|htpasswd|ini|bak|conf|config|sql|sh|json)|~)$">
+    Require all denied
+</FilesMatch>
+
+# Block access to directories without index file
+Options -Indexes
+
+# Prevent directory listing
+IndexIgnore *
+
+# Disable server signature
+ServerSignature Off
+
+# Reduce MIME type security risks
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# ----------------------------------------------------------------------
+# PHP SETTINGS
+# ----------------------------------------------------------------------
+
+# Ensure PHP is at least version 7.4
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_value memory_limit 256M
+    php_value max_execution_time 120
+    php_value max_input_time 60
+    php_value session.gc_maxlifetime 1440
+</IfModule>
+
+# ----------------------------------------------------------------------
+# REDIRECTIONS AND URL REWRITING
+# ----------------------------------------------------------------------
+
+# Force HTTPS (uncomment when SSL is configured)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Redirect /index to root
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
+RewriteRule ^index\.php$ / [R=301,L]
+
+# ----------------------------------------------------------------------
+# PERFORMANCE OPTIMIZATIONS
+# ----------------------------------------------------------------------
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript
+</IfModule>
+
+# Leverage browser caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# ----------------------------------------------------------------------
+# ERROR PAGES
+# ----------------------------------------------------------------------
+
+ErrorDocument 400 /error.php?code=400
+ErrorDocument 401 /error.php?code=401
+ErrorDocument 403 /error.php?code=403
+ErrorDocument 404 /error.php?code=404
+ErrorDocument 500 /error.php?code=500
+
+# ----------------------------------------------------------------------
+# SECURITY HEADERS
+# ----------------------------------------------------------------------
+
+<IfModule mod_headers.c>
+    # X-XSS-Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # X-Frame-Options
+    Header always append X-Frame-Options SAMEORIGIN
+    
+    # Content Security Policy (adjust as needed)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://images.unsplash.com; font-src 'self' https://cdn.jsdelivr.net"
+    
+    # Strict-Transport-Security (uncomment when SSL is configured)
+    # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Feature Policy (adjust as needed)
+    Header set Feature-Policy "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; vibrate 'none'; fullscreen 'self'; payment 'none'"
+</IfModule>
+
+# ----------------------------------------------------------------------
+# PREVENT HOTLINKING (uncomment if needed)
+# ----------------------------------------------------------------------
+
+# RewriteCond %{HTTP_REFERER} !^$
+# RewriteCond %{HTTP_REFERER} !^https://(www\.)?yourdomain\.com/.*$ [NC]
+# RewriteRule \.(jpg|jpeg|png|gif|svg|css|js)$ - [F,NC,L]
