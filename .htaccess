@@ -1,74 +1,20 @@
-# Enable Rewrite Engine
+# Enable URL rewriting
 RewriteEngine On
+RewriteBase /
 
-# ----------------------------------------------------------------------
-# Security Protections
-# ----------------------------------------------------------------------
-# Block directory browsing
+# Prevent directory listing
 Options -Indexes
 
-# Protect sensitive files
-<FilesMatch "\.(env|config|log|htaccess|sql)$">
+# Allow access to specific files
+<FilesMatch "\.(jpg|jpeg|png|gif|css|js|pdf|html|php)$">
     Order allow,deny
-    Deny from all
+    Allow from all
 </FilesMatch>
 
-# Prevent access to the /admin/ folder from outside (optional)
-# RewriteCond %{REMOTE_ADDR} !^123\.456\.789\.000  # Replace with your IP
-# RewriteRule ^admin/ - [F,L]
+# Redirect to public folder if needed
+# RewriteRule ^(.*)$ public/$1 [L]
 
-# ----------------------------------------------------------------------
-# PHP Settings (override Hostinger's defaults if needed)
-# ----------------------------------------------------------------------
-<IfModule mod_php.c>
-    php_value upload_max_filesize 20M
-    php_value post_max_size 22M
-    php_value memory_limit 256M
-    php_value max_execution_time 180
-    php_flag display_errors Off
-</IfModule>
-
-# ----------------------------------------------------------------------
-# SEO-Friendly URLs (if you want to remove .php extensions)
-# ----------------------------------------------------------------------
+# Handle front controller
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}\.php -f
-RewriteRule ^(.*)$ $1.php [L]
-
-# Example: Turns "/signup.php" into "/signup"
-# Works for all PHP files (e.g., index.php, contact.php)
-
-# ----------------------------------------------------------------------
-# Redirect Trailing Slashes
-# ----------------------------------------------------------------------
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/$ /$1 [L,R=301]
-
-# ----------------------------------------------------------------------
-# Compression (improves page load speed)
-# ----------------------------------------------------------------------
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript
-</IfModule>
-
-# ----------------------------------------------------------------------
-# Caching (improves performance)
-# ----------------------------------------------------------------------
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/jpg "access 1 year"
-    ExpiresByType text/css "access 1 month"
-    ExpiresByType application/javascript "access 1 month"
-</IfModule>
-
-# ----------------------------------------------------------------------
-# Force HTTPS (if SSL is enabled on Hostinger)
-# ----------------------------------------------------------------------
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# ----------------------------------------------------------------------
-# Custom Error Pages (optional)
-# ----------------------------------------------------------------------
-ErrorDocument 404 /404.php
-ErrorDocument 403 /403.php
+RewriteRule ^(.*)$ index.php [QSA,L]
