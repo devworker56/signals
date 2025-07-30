@@ -20,7 +20,7 @@ define('DB_NAME', 'u834808878_dbSignals'); // Your database name
 
 // Application Settings
 define('SITE_NAME', 'AI Trading Signals');
-define('SITE_URL', 'https://steelblue-alligator-281446.hostingersite.com/'); // Replace with your actual domain
+define('SITE_URL', 'https://yourdomain.com'); // Replace with your actual domain
 define('SITE_EMAIL', 'no-reply@yourdomain.com'); // Replace with your email
 define('ADMIN_EMAIL', 'admin@yourdomain.com'); // Replace with admin email
 
